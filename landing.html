@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Problem Tracker - Welcome</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Base background with an image and a gradient overlay */
+        body {
+            background-image: url('https://source.unsplash.com/random/1600x900/?abstract,geometric,gradient,tech');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Overlay to blend image with brand colors and improve readability */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom right, rgba(147, 51, 234, 0.4), rgba(236, 72, 153, 0.4));
+            z-index: -2;
+        }
+
+        /* Ensure main content is above the overlay */
+        main, header, footer {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 2. Cutie Float animation */
+        .cutie-float {
+            animation: float 4s ease-in-out infinite;
+        }
+        @keyframes float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0); }
+        }
+
+        /* 3. Initial load animations */
+        .fade-in-up {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <header class="sticky top-0 z-50 w-full backdrop-blur-md bg-white/80 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-start items-center">
+            <a href="#" class="flex items-center text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-80 transition duration-200">
+                <i data-lucide="target" class="w-6 h-6 mr-2"></i> Problem Tracker
+            </a>
+            
+            </div>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center p-8">
+        <div class="max-w-4xl text-center backdrop-blur-sm bg-white/70 p-12 rounded-3xl shadow-2xl border border-gray-100">
+            
+            <div id="companion-area" class="relative mb-6">
+                <div id="companion-icon" class="text-7xl cutie-float cursor-pointer transition-transform duration-100 ease-out hover:scale-110 active:scale-90" onclick="showCompanionTip()">
+                    🎯
+                </div>
+                <div id="companion-tip" class="absolute left-1/2 -top-16 transform -translate-x-1/2 bg-yellow-400 text-yellow-900 font-semibold text-sm px-4 py-2 rounded-full opacity-0 pointer-events-none transition-opacity duration-300 shadow-md">
+                    Keep crushing it! 💪
+                </div>
+            </div>
+
+            <h1 class="text-6xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600 fade-in-up" style="animation-delay: 0.1s;">
+                Crush Your Coding Goals.
+            </h1>
+            <p class="text-xl text-slate-700 mb-10 max-w-2xl mx-auto fade-in-up" style="animation-delay: 0.3s;">
+                Organize your progress across Data Structures, Algorithms, and Web Development.
+            </p>
+
+            <a href="index.html" class="inline-flex items-center justify-center px-10 py-4 text-lg font-bold rounded-full text-white bg-gradient-to-r from-purple-600 to-pink-600 transition duration-300 shadow-xl transform hover:scale-105 active:scale-100 hover:shadow-2xl fade-in-up" style="animation-delay: 0.5s;">
+                Get Started <i data-lucide="arrow-right" class="w-5 h-5 ml-2"></i>
+            </a>
+        </div>
+    </main>
+    
+    <footer class="w-full bg-white/90 border-t border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 text-center text-sm text-gray-500">
+            &copy; <span id="current-year"></span> ProblemTracker. All rights reserved.
+        </div>
+    </footer>
+
+
+    <script>
+        // Initialize lucide icons
+        lucide.createIcons();
+        
+        // Set current year in footer
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+
+        // Companion Interaction Logic
+        const tips = [
+            "You got this! Keep going! 🚀",
+            "What's one problem? Let's solve it! 💡",
+            "A little progress is still progress! ✨",
+            "Keep crushing it! 💪",
+            "Your next big breakthrough is near! 💻"
+        ];
+        
+        const companionTip = document.getElementById('companion-tip');
+        let tipTimeout;
+
+        function showCompanionTip() {
+            // Clear previous timeout to avoid multiple tips overlapping
+            clearTimeout(tipTimeout);
+
+            // Get a random tip
+            const randomTip = tips[Math.floor(Math.random() * tips.length)];
+            companionTip.textContent = randomTip;
+
+            // Show the tip
+            companionTip.classList.remove('opacity-0');
+            companionTip.classList.add('opacity-100');
+
+            // Hide the tip after 3 seconds
+            tipTimeout = setTimeout(() => {
+                companionTip.classList.remove('opacity-100');
+                companionTip.classList.add('opacity-0');
+            }, 3000);
+        }
+    </script>
+
+</body>
+</html>

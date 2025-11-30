@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Problem Tracker - With Cutie Companion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* --- APP STYLES --- */
+        .notes-textarea {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+
+        /* --- CUTIE MASCOT STYLES --- */
+        #mascot-container {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 120px;
+            height: 120px;
+            z-index: 100;
+            cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* The Body */
+        .mascot-body {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: #fde0c0; /* Light Tan */
+            border: 4px solid #4a3b2a;
+            border-radius: 50% 50% 45% 45%;
+            box-shadow: inset -10px -10px 0px rgba(0,0,0,0.1);
+            overflow: visible;
+        }
+
+        /* Forehead Marking */
+        .marking {
+            position: absolute;
+            top: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 30px;
+            background: #e6c299;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        /* Ears */
+        .ear {
+            position: absolute;
+            top: -10px;
+            width: 35px;
+            height: 35px;
+            background: #fde0c0;
+            border: 4px solid #4a3b2a;
+            border-radius: 50%;
+            z-index: -1;
+        }
+        .ear.left { left: 0; }
+        .ear.right { right: 0; }
+        .ear::after {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            width: 18px;
+            height: 18px;
+            background: #ffb7b2;
+            border-radius: 50%;
+        }
+
+        /* Face Area */
+        .face {
+            position: absolute;
+            top: 40px;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            z-index: 2;
+        }
+
+        /* Eyes */
+        .eye {
+            position: absolute;
+            top: 10px;
+            width: 18px;
+            height: 18px;
+            background: #2d241b;
+            border-radius: 50%;
+        }
+        .eye.left { left: 25px; }
+        .eye.right { right: 25px; }
+
+        /* Pupils (The moving part) */
+        .pupil {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 6px;
+            height: 6px;
+            background: white;
+            border-radius: 50%;
+            /* CSS Variables for JS to control */
+            transform: translate(var(--eye-x, 0px), var(--eye-y, 0px)); 
+            transition: transform 0.1s;
+        }
+
+        /* Cheeks */
+        .cheek {
+            position: absolute;
+            top: 28px;
+            width: 15px;
+            height: 10px;
+            background: #ff9aa2;
+            border-radius: 50%;
+            opacity: 0.6;
+        }
+        .cheek.left { left: 15px; }
+        .cheek.right { right: 15px; }
+
+        /* Mouth */
+        .snout {
+            position: absolute;
+            top: 22px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 8px;
+            background: #2d241b;
+            border-radius: 40%;
+        }
+        .mouth-line {
+            position: absolute;
+            top: 26px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 6px;
+            background: #2d241b;
+        }
+
+        /* Arms */
+        .arm {
+            position: absolute;
+            top: 70px;
+            width: 25px;
+            height: 25px;
+            background: #fde0c0;
+            border: 4px solid #4a3b2a;
+            border-radius: 50%;
+            z-index: 3;
+        }
+        .arm.left { left: -10px; transform: rotate(-20deg); }
+        .arm.right { right: -10px; transform: rotate(20deg); }
+
+        /* Legs */
+        .leg {
+            position: absolute;
+            bottom: -5px;
+            width: 30px;
+            height: 25px;
+            background: #fde0c0;
+            border: 4px solid #4a3b2a;
+            border-radius: 50%;
+            z-index: 0;
+        }
+        .leg.left { left: 20px; }
+        .leg.right { right: 20px; }
+
+        /* Speech Bubble */
+        .mascot-bubble {
+            position: absolute;
+            bottom: 130px;
+            left: 0;
+            width: 180px;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: 3px solid #2d241b;
+            font-weight: bold;
+            color: #2d241b;
+            font-size: 14px;
+            opacity: 0;
+            transform: translateY(10px) scale(0.8);
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            pointer-events: none;
+            z-index: 101;
+        }
+        .mascot-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 30px;
+            border-width: 10px 10px 0;
+            border-style: solid;
+            border-color: #2d241b transparent transparent transparent;
+        }
+        .mascot-bubble.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        /* --- ANIMATIONS --- */
+        
+        /* 1. Flip on Hover */
+        #mascot-container:hover .mascot-body {
+            animation: flip 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes flip {
+            0% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(180deg); }
+            100% { transform: scale(1) rotate(360deg); }
+        }
+
+        /* 2. Hop Class (Added by JS) */
+        .mascot-hop .mascot-body {
+            animation: hop 0.4s ease-in-out;
+        }
+
+        @keyframes hop {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-30px); }
+        }
+
+        /* 3. Roll Class (Added by JS on Click) */
+        /* FIX: Apply animation to the whole container to include the speech bubble */
+        .mascot-roll { 
+             animation: roll 1s linear; 
+        }
+        .mascot-roll .mascot-body {
+             /* Reset animation on the body itself to avoid double-animation */
+             animation: none; 
+        }
+        @keyframes roll {
+            0% { transform: translateX(0) rotate(0deg); }
+            25% { transform: translateX(50px) rotate(90deg); }
+            50% { transform: translateX(0) rotate(180deg); }
+            75% { transform: translateX(-50px) rotate(270deg); }
+            100% { transform: translateX(0) rotate(360deg); }
+        }
+
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
+
+    <div id="mascot-container">
+        <div id="mascot-bubble" class="mascot-bubble">You got this!</div>
+        <div class="mascot-body">
+            <div class="ear left"></div>
+            <div class="ear right"></div>
+            <div class="marking"></div>
+            
+            <div class="face">
+                <div class="eye left"><div class="pupil"></div></div>
+                <div class="eye right"><div class="pupil"></div></div>
+                <div class="cheek left"></div>
+                <div class="cheek right"></div>
+                <div class="snout"></div>
+                <div class="mouth-line"></div>
+            </div>
+
+            <div class="arm left"></div>
+            <div class="arm right"></div>
+            <div class="leg left"></div>
+            <div class="leg right"></div>
+        </div>
+    </div>
+    <div id="app-root" class="relative z-0">
+        </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
